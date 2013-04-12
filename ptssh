@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import os
+import subprocess
+import sys
+
+from os.path import expanduser, splitext
+
+
+def disable(args):
+    confdir, file = args.config, args.file
+    name, ext = splitext("%s/%s" % (confdir, file))
+    
+    if not os.path.exists("%s/%s" % (confdir, file)):
+        sys.stderr.write("%s doesn't exist\n" % name)
+        sys.exit()
+
+    if ext == ".disabled":
+        print >> sys.stderr, "%s is already disabled" % file
+        sys.exit()
+    else:
+        src = "%s/%s" % (confdir, file)
+        dest = "%s.disabled" % src
+        os.rename(src, dest)
+        sys.stdout.write("Disabled %s\n" % file)
+
+
+def enable(args):
+    """This is mildly a PITA because I allow people to use either the full filename or just the "key" name -- so a currently diabled file "mykey.disabled" can be submitted as either "mykey" or "mykey.disbaled" """
+
+    confdir, file = args.config, args.file
+    name, ext = splitext("%s/%s" % (confdir, file))
+
+    if ext != ".disabled" and os.path.exists("%s/%s.disabled" % (confdir, file)):
+        src = "%s/%s.disabled" % (confdir, file)
+    elif ext == ".disabled" and os.path.exists("%s/%s" % (confdir, file)): 
+        src = "%s/%s" % (confdir, file)
+    else:    
+        print >> sys.stderr, "%s is already enabled or doesn't exist" % file
+        sys.exit()
+    dest = name
+    os.rename(src, dest)
+    sys.stdout.write("Enabled %s\n" % file)
+
+
+def inventory(args):
+    print os.listdir(args.config)
+
+
+def main():
+    parser = argparse.ArgumentParser(prog='ptssh', description='Enable/disable ssh config fragments for poet', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-c', '--config', help='config.d directory managed by poet', default="%s/.ssh/config.d" % expanduser("~"))
+    parser.add_argument('-r', '--run', action='store_true', help='Run poet after taking action?', default=False)
+
+    subparsers = parser.add_subparsers()
+    parser_enable = subparsers.add_parser('enable', help='Enable an ssh config fragment')
+    parser_enable.add_argument('-f', '--file', type=str, help='filename to enable')
+    parser_enable.set_defaults(func=enable)
+
+    parser_disable = subparsers.add_parser('disable', help='Disable an ssh config fragment')
+    parser_disable.add_argument('-f', '--file', type=str, help='filename to disable')
+    parser_disable.set_defaults(func=disable)
+
+    parser_inventory = subparsers.add_parser('inventory', help='Show ssh fragment statuses')
+    parser_inventory.set_defaults(func=inventory)
+    
+    args = parser.parse_args()
+    args.func(args)
+
+    if args.run:
+        subprocess.call(["poet", "--dir", args.config])
+
+
+if __name__ == "__main__":
+    main()
+
