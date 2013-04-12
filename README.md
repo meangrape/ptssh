@@ -1,6 +1,6 @@
 ptssh
 =====
-A tiny utility for managing ssh_config fragments handled by (poet)[https://github.com/awendt/poet].
+A tiny utility for managing ssh_config fragments handled by https://github.com/awendt/poet
 
 
 <pre>
