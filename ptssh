@@ -58,12 +58,14 @@ def enable(args):
 
 def inventory(args):
     print os.listdir(args.config)
+    # Don't want to regen ssh_config
+    sys.exit()
 
 
 def main():
     parser = argparse.ArgumentParser(prog='ptssh', description='Enable/disable ssh config fragments for poet', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-c', '--config', help='config.d directory managed by poet', default="%s/.ssh/config.d" % expanduser("~"))
-    parser.add_argument('-r', '--run', action='store_true', help='Run poet after taking action?', default=False)
+    parser.add_argument('-r', '--run', action='store_false', help='Run poet after taking action?', default=True)
 
     subparsers = parser.add_subparsers()
     parser_enable = subparsers.add_parser('enable', help='Enable an ssh config fragment')
