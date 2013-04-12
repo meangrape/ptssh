@@ -1,6 +1,7 @@
 ptssh
 =====
-A tiny utility for managing ssh_config fragments handled by https://github.com/awendt/poet
+A tiny utility for managing ssh_config fragments handled by https://github.com/awendt/poet.
+Enables and disables fragments and regenerates ssh_config file.
 
 
 <pre>
@@ -19,5 +20,5 @@ optional arguments:
   -c CONFIG, --config CONFIG
                         config.d directory managed by poet (default:
                         $HOME/.ssh/config.d)
-  -r, --run             Run poet after taking action? (default: False)
+  -r, --run             Run poet after taking action? (default: True)
 </pre>
